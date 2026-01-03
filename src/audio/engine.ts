@@ -103,8 +103,24 @@ export class AudioEngine {
         });
     }
 
+
+    public async suspend(): Promise<void> {
+        if (this.ctx && this.ctx.state === 'running') {
+            await this.ctx.suspend();
+        }
+    }
+
+    public async resume(): Promise<void> {
+        if (this.ctx && this.ctx.state === 'suspended') {
+            await this.ctx.resume();
+        }
+    }
+
     public async start(): Promise<void> {
-        if (this.isInitialized) return;
+        if (this.isInitialized) {
+            await this.resume();
+            return;
+        }
 
         this.ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
         this.masterGain = this.ctx.createGain();

@@ -48,6 +48,20 @@ export class TetrisEngine extends EventEmitter {
         return true;
     }
 
+    public pause(): void {
+        if (this.state === 'playing') {
+            this.state = 'paused';
+            this.emit('state-change', this.state);
+        }
+    }
+
+    public resume(): void {
+        if (this.state === 'paused') {
+            this.state = 'playing';
+            this.emit('state-change', this.state);
+        }
+    }
+
     public tick(): void {
         if (this.state !== 'playing' || !this.currentPiece) return;
 

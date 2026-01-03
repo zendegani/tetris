@@ -55,6 +55,29 @@ const render = (_interpolation: number) => {
   ctx.fillText(`Score: ${engine.score}`, 20, 30);
   ctx.fillText(`Level: ${engine.level}`, 20, 50);
   ctx.fillText(`Lines: ${engine.linesCleared}`, 20, 70);
+
+  if (engine.state === 'paused') {
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '30px "Courier New"';
+    ctx.textAlign = 'center';
+    ctx.fillText('PAUSED', ctx.canvas.width / 2, ctx.canvas.height / 2);
+    ctx.textAlign = 'left'; // Reset
+  } else if (engine.state === 'game-over') {
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+    ctx.fillStyle = '#ff0055';
+    ctx.font = '40px "Courier New"';
+    ctx.textAlign = 'center';
+    ctx.fillText('GAME OVER', ctx.canvas.width / 2, ctx.canvas.height / 2);
+    ctx.font = '20px "Courier New"';
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText(`Final Score: ${engine.score}`, ctx.canvas.width / 2, ctx.canvas.height / 2 + 40);
+    ctx.textAlign = 'left';
+  }
 };
 
 // Input Handling
@@ -106,5 +129,30 @@ function handleGravity(dt: number) {
 
 const loop = new GameLoop(update, render);
 loop.start();
+
+// Visibility / Auto-Pause
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    engine.pause();
+    audio.suspend();
+  } else {
+    // Optional: we can choosing NOT to auto-resume to be safe, 
+    // or auto-resume if it was playing before. 
+    // For now, let's keep it paused so the user has to click/press key.
+  }
+});
+
+// Resume on interaction if paused (simple toggle approach)
+window.addEventListener('keydown', (e) => {
+  if (e.code === 'Escape') {
+    if (engine.state === 'playing') {
+      engine.pause();
+      audio.suspend();
+    } else if (engine.state === 'paused') {
+      engine.resume();
+      audio.resume();
+    }
+  }
+});
 
 console.log('Tetris-Vibe | Visual Systems Online');
