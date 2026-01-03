@@ -12,6 +12,9 @@ jobs:
     name: Validate and Build
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: write
+
     strategy:
       matrix:
         node-version: [20.x]
@@ -32,8 +35,18 @@ jobs:
       - name: Check Types
         run: npx tsc --noEmit
 
-      - name: Run Tests
-        run: npm test -- --run
+      - name: Run Tests with Coverage
+        run: npm run test:cov
+
+      - name: Generate Coverage Badge
+        run: npm run make-badge
+
+      - name: Commit Badge
+        if: github.ref == 'refs/heads/main'
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: update coverage badge"
+          file_pattern: "./badges/*.svg"
 
       - name: Build Project
         run: npm run build

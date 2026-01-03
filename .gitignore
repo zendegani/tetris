@@ -27,3 +27,6 @@ dist-ssr
 _bmad
 .agent
 .claude
+
+# Testing
+coverage

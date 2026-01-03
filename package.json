@@ -7,12 +7,16 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "test": "vitest"
+    "test": "vitest",
+    "test:cov": "vitest run --coverage.enabled --coverage.reporter=text --coverage.reporter=json-summary",
+    "make-badge": "mkdir -p badges && coverage-badges --output badges/coverage.svg"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@vitest/coverage-v8": "^4.0.16",
+    "coverage-badges-cli": "^2.2.0",
     "typescript": "^5.9.3",
     "vite": "^7.3.0",
     "vitest": "^4.0.16",
