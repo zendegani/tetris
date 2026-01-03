@@ -6,11 +6,14 @@ import { AudioEngine } from './audio/engine';
 import { PersistenceManager } from './logic/persistence';
 import { GameStateSchema } from './logic/schema';
 
+import { UIManager } from './ui/manager';
+
 // Initialize Systems
 const engine = new TetrisEngine();
 const renderer = new CanvasRenderer('app');
 const audio = new AudioEngine();
 const persistence = new PersistenceManager();
+const ui = new UIManager();
 
 let audioStarted = false;
 
@@ -20,6 +23,10 @@ if (savedState) {
   console.log('Resuming Saved Session...');
   engine.deserialize(savedState);
   engine.pause();
+  ui.updateStats(engine.score, engine.level, engine.linesCleared);
+  ui.togglePause(true);
+} else {
+  ui.updateStats(engine.score, engine.level, engine.linesCleared);
 }
 
 // Auto-Save Bindings
@@ -37,10 +44,16 @@ engine.on('lock', () => {
 engine.on('level-up', () => {
   renderer.gridPulse.trigger('#ff00ff'); // Magenta pulse for level up
   audio.playSFX('level-up');
+  ui.updateStats(engine.score, engine.level, engine.linesCleared);
   saveGame();
 });
 
-engine.on('state-change', () => {
+engine.on('state-change', (newState) => {
+  if (newState === 'paused') {
+    ui.showPause();
+  } else if (newState === 'playing') {
+    ui.hidePause();
+  }
   saveGame();
 });
 
@@ -51,10 +64,13 @@ engine.on('line-clear', (payload: any) => {
   } else {
     audio.playSFX('line-clear');
   }
+  ui.updateStats(engine.score, engine.level, engine.linesCleared);
+  saveGame(); // Ensure score is saved
 });
 
 engine.on('game-over', () => {
   audio.playSFX('game-over');
+  ui.showGameOver(engine.score);
 });
 
 const update = (deltaTime: number) => {
@@ -67,38 +83,7 @@ const update = (deltaTime: number) => {
 
 const render = (_interpolation: number) => {
   renderer.render(engine);
-
-  // Debug text overlay
-  const ctx = renderer.getContext();
-  ctx.shadowBlur = 0;
-  ctx.fillStyle = '#00faff';
-  ctx.font = '16px "Courier New"';
-  ctx.fillText(`Score: ${engine.score}`, 20, 30);
-  ctx.fillText(`Level: ${engine.level}`, 20, 50);
-  ctx.fillText(`Lines: ${engine.linesCleared}`, 20, 70);
-
-  if (engine.state === 'paused') {
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-
-    ctx.fillStyle = '#ffffff';
-    ctx.font = '30px "Courier New"';
-    ctx.textAlign = 'center';
-    ctx.fillText('PAUSED', ctx.canvas.width / 2, ctx.canvas.height / 2);
-    ctx.textAlign = 'left'; // Reset
-  } else if (engine.state === 'game-over') {
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-
-    ctx.fillStyle = '#ff0055';
-    ctx.font = '40px "Courier New"';
-    ctx.textAlign = 'center';
-    ctx.fillText('GAME OVER', ctx.canvas.width / 2, ctx.canvas.height / 2);
-    ctx.font = '20px "Courier New"';
-    ctx.fillStyle = '#ffffff';
-    ctx.fillText(`Final Score: ${engine.score}`, ctx.canvas.width / 2, ctx.canvas.height / 2 + 40);
-    ctx.textAlign = 'left';
-  }
+  // Debug text removed - handled by UI Manager
 };
 
 // Input Handling
