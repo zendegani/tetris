@@ -37,6 +37,11 @@ export class Grid {
         return this.cells.map(row => [...row]);
     }
 
+    public getGridRef(): number[][] {
+        // Direct access for high-performance rendering (READ ONLY!)
+        return this.cells;
+    }
+
     public getWidth(): number {
         return this.columns;
     }
