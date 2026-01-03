@@ -41,8 +41,8 @@ story_location: _bmad-output/implementation-artifacts
 
 development_status:
   epic-1: in-progress
-  1-1-grid-initialization: ready-for-dev
-  1-2-piece-definitions: backlog
+  1-1-grid-initialization: done
+  1-2-piece-definitions: ready-for-dev
   1-3-true-random-generator: backlog
   1-4-movement-collision: backlog
   1-5-gravity-lock-clearing: backlog
