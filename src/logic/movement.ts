@@ -9,11 +9,17 @@ import { Piece, Point } from './piece';
  */
 export function isPositionValid(grid: Grid, blocks: Point[]): boolean {
     for (const block of blocks) {
-        // Check boundaries
-        if (!grid.isValidCoordinate(block.x, block.y)) {
+        // Check horizontal boundaries and floor
+        if (block.x < 0 || block.x >= grid.getWidth() || block.y >= grid.getHeight()) {
             return false;
         }
-        // Check collisions with existing blocks
+
+        // Ignore blocks above the top for collision (allow spawning)
+        if (block.y < 0) {
+            continue;
+        }
+
+        // Check collisions with existing blocks (y is now >= 0)
         const cellValue = grid.getCell(block.x, block.y);
         if (cellValue !== 0) {
             return false;

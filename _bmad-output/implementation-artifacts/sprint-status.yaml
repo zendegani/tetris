@@ -45,8 +45,8 @@ development_status:
   1-2-piece-definitions: done
   1-3-true-random-generator: done
   1-4-movement-collision: done
-  1-5-gravity-lock-clearing: ready-for-dev
-  epic-1-retrospective: optional
+  1-5-gravity-lock-clearing: done
+  epic-1-retrospective: ready-for-dev
 
   epic-2: backlog
   2-1-neon-canvas-init: backlog
