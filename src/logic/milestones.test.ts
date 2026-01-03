@@ -18,7 +18,8 @@ describe('MilestoneManager', () => {
             score: 100,
             level: 1,
             linesCleared: 1,
-            lastLineClearCount: 1
+            lastLineClearCount: 1,
+            gameMode: 'ranked'
         };
 
         const newlyUnlocked = milestones.check(stats);
@@ -33,7 +34,8 @@ describe('MilestoneManager', () => {
             score: 100,
             level: 1,
             linesCleared: 1,
-            lastLineClearCount: 1
+            lastLineClearCount: 1,
+            gameMode: 'ranked'
         };
 
         // First check unlocks it
@@ -55,7 +57,8 @@ describe('MilestoneManager', () => {
             score: 800,
             level: 5, // Triggers High Flyer
             linesCleared: 4, // Triggers First Contact
-            lastLineClearCount: 4 // Triggers Tetris Master
+            lastLineClearCount: 4, // Triggers Tetris Master
+            gameMode: 'ranked'
         };
 
         const newlyUnlocked = milestones.check(stats);
@@ -74,5 +77,19 @@ describe('MilestoneManager', () => {
         expect(unlocked).toContain('first-contact');
         expect(unlocked).toContain('high-flyer');
         expect(unlocked).not.toContain('tetris-master');
+    });
+
+    it('should NOT unlock milestones in practice mode', () => {
+        const stats: GameStats = {
+            score: 99999,
+            level: 20,
+            linesCleared: 100,
+            lastLineClearCount: 4,
+            gameMode: 'practice'
+        };
+
+        const newlyUnlocked = milestones.check(stats);
+        expect(newlyUnlocked).toEqual([]);
+        expect(milestones.getUnlockedIds()).toEqual([]);
     });
 });

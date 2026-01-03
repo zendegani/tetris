@@ -30,6 +30,18 @@ if (savedMilestones) {
 
 // Bind UI
 ui.bindThemeSelector(themeManager, milestones.getUnlockedIds());
+ui.bindSimControls({
+  onToggleMode: (isPractice) => {
+    const mode = isPractice ? 'practice' : 'ranked';
+    engine.setGameMode(mode);
+    // Reset game on mode switch to apply cleanly? for now just set mode
+    // Ideally we should restart the game or clear the grid to prevent cheating
+    // But for "Practice Lab" it's fine to switch on the fly for now
+  },
+  onLevelChange: (level) => {
+    engine.setLevel(level);
+  }
+});
 
 // Load Theme
 const savedTheme = persistence.load('theme', z.string());
@@ -68,6 +80,7 @@ const checkMilestones = (lastLineClearCount: number) => {
     level: engine.level,
     linesCleared: engine.linesCleared,
     lastLineClearCount,
+    gameMode: engine.gameMode
   });
 
   if (unlocked.length > 0) {

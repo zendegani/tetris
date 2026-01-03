@@ -54,6 +54,18 @@
               <option value="neon">NEON CORE</option>
             </select>
           </div>
+
+          <div class="settings-group">
+            <label class="toggle-label">
+              <input type="checkbox" id="sim-mode-toggle">
+              <span>SIMULATION MODE</span>
+            </label>
+          </div>
+
+          <div class="settings-group hidden" id="sim-controls">
+            <label for="level-override">LEVEL SET: <span id="level-display">1</span></label>
+            <input type="range" id="level-override" min="1" max="20" value="1">
+          </div>
         </div>
       </div>
 

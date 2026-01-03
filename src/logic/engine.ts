@@ -7,6 +7,7 @@ import { EventEmitter } from './events';
 import { SerializedGameState } from './schema';
 
 export type GameState = 'playing' | 'paused' | 'game-over';
+export type GameMode = 'ranked' | 'practice';
 
 export class TetrisEngine extends EventEmitter {
     public grid: Grid;
@@ -16,6 +17,7 @@ export class TetrisEngine extends EventEmitter {
     public linesCleared: number = 0;
     public level: number = 1;
     public state: GameState = 'playing';
+    public gameMode: GameMode = 'ranked';
 
     private randomGen: RandomGenerator;
 
@@ -25,6 +27,22 @@ export class TetrisEngine extends EventEmitter {
         this.randomGen = new RandomGenerator(seed);
         this.nextPieceType = this.randomGen.next();
         this.spawnPiece();
+    }
+
+    public setLevel(level: number) {
+        // Clamp 1-20
+        if (level < 1) level = 1;
+        if (level > 20) level = 20;
+        this.level = level;
+    }
+
+    public setGameMode(mode: GameMode) {
+        this.gameMode = mode;
+        if (mode === 'practice') {
+            // Reset score to 0 to avoid confusion
+            this.score = 0;
+            this.linesCleared = 0;
+        }
     }
 
     // ... existing methods ...
@@ -104,9 +122,15 @@ export class TetrisEngine extends EventEmitter {
             // Try spawning at Y=0 as a fallback before declaring death
             this.currentPiece.y = 0;
             if (!canMove(this.grid, this.currentPiece, 0, 0)) {
-                this.state = 'game-over';
-                this.emit('game-over');
-                return false;
+                if (this.gameMode === 'practice') {
+                    // God Mode: Reset grid to keep playing
+                    this.grid.reset();
+                    // No need to spawn again, currentPiece is already there and now valid since grid is empty
+                } else {
+                    this.state = 'game-over';
+                    this.emit('game-over');
+                    return false;
+                }
             }
         }
         return true;

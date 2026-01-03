@@ -3,6 +3,7 @@ export interface GameStats {
     level: number;
     linesCleared: number;
     lastLineClearCount: number; // For "Tetris Master"
+    gameMode: 'ranked' | 'practice';
 }
 
 export interface Milestone {
@@ -52,6 +53,10 @@ export class MilestoneManager {
      * @returns Array of newly unlocked milestones
      */
     public check(stats: GameStats): Milestone[] {
+        if (stats.gameMode === 'practice') {
+            return [];
+        }
+
         const justUnlocked: Milestone[] = [];
 
         for (const m of this.milestones) {

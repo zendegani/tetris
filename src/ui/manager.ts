@@ -8,6 +8,11 @@ export class UIManager {
     private btnRestart: HTMLElement;
     private toastContainer: HTMLElement;
     private themeSelect: HTMLSelectElement;
+    private simToggle: HTMLInputElement;
+    private simControls: HTMLElement;
+    private levelOverride: HTMLInputElement;
+    private levelDisplay: HTMLElement;
+    private simIndicator: HTMLElement;
 
     constructor() {
         // Cache DOM elements
@@ -21,8 +26,15 @@ export class UIManager {
         this.toastContainer = document.getElementById('toast-container')!;
         this.themeSelect = document.getElementById('theme-select') as HTMLSelectElement;
 
+        // Sim Controls
+        this.simToggle = document.getElementById('sim-mode-toggle') as HTMLInputElement;
+        this.simControls = document.getElementById('sim-controls')!;
+        this.levelOverride = document.getElementById('level-override') as HTMLInputElement;
+        this.levelDisplay = document.getElementById('level-display')!;
+        this.simIndicator = document.getElementById('sim-indicator')!;
+
         // Check for missing elements to fail fast
-        if (!this.scoreEl || !this.levelEl || !this.linesEl || !this.toastContainer || !this.themeSelect) {
+        if (!this.scoreEl || !this.levelEl || !this.linesEl || !this.toastContainer || !this.themeSelect || !this.simToggle || !this.simIndicator) {
             console.error('UIManager: Missing HUD elements');
         }
 
@@ -59,6 +71,32 @@ export class UIManager {
 
             // Dispatch event for persistence
             window.dispatchEvent(new CustomEvent('theme-change', { detail: target.value }));
+        });
+    }
+
+    public bindSimControls(
+        callbacks: {
+            onToggleMode: (isPractice: boolean) => void;
+            onLevelChange: (level: number) => void;
+        }
+    ) {
+        this.simToggle.addEventListener('change', (e) => {
+            const isPractice = (e.target as HTMLInputElement).checked;
+            callbacks.onToggleMode(isPractice);
+
+            if (isPractice) {
+                this.simControls.classList.remove('hidden');
+                this.simIndicator.classList.remove('hidden');
+            } else {
+                this.simControls.classList.add('hidden');
+                this.simIndicator.classList.add('hidden');
+            }
+        });
+
+        this.levelOverride.addEventListener('input', (e) => {
+            const val = parseInt((e.target as HTMLInputElement).value);
+            this.levelDisplay.innerText = val.toString();
+            callbacks.onLevelChange(val);
         });
     }
 

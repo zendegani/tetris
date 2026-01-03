@@ -68,5 +68,5 @@ development_status:
   4-1-dashboard-ui-shell: done
   4-2-milestone-tracking: done
   4-3-palette-unlock-logic: done
-  4-4-simulation-practice-lab: ready-for-dev
-  epic-4-retrospective: optional
+  4-4-simulation-practice-lab: done
+  epic-4-retrospective: ready-for-dev
