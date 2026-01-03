@@ -2,11 +2,15 @@ import './style.css';
 import { TetrisEngine } from './logic/engine';
 import { CanvasRenderer } from './renderer/canvas';
 import { GameLoop } from './engine/loop';
+import { AudioEngine } from './audio/engine';
 
 // Initialize Systems
 const engine = new TetrisEngine();
 // We need a wrapper element for the canvas, let's use #app
 const renderer = new CanvasRenderer('app');
+const audio = new AudioEngine();
+
+let audioStarted = false;
 
 engine.on('lock', () => {
   // Small shake on piece lock
@@ -46,6 +50,11 @@ const render = (_interpolation: number) => {
 
 // Input Handling
 window.addEventListener('keydown', (e) => {
+  if (!audioStarted) {
+    audio.start();
+    audioStarted = true;
+  }
+
   if (engine.state !== 'playing') return;
 
   switch (e.code) {
