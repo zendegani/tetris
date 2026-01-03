@@ -1,0 +1,29 @@
+# generated: 2026-01-03 16:07
+# project: bamd
+# project_type: independent
+# selected_track: intermediate
+
+# STATUS DEFINITIONS:
+# ==================
+# Initial Status (before completion):
+#   - required: Must be completed to progress
+#   - optional: Can be completed but not required
+#   - recommended: Strongly suggested but not required
+#   - conditional: Required only if certain conditions met (e.g., if_narrative_focused)
+#
+# Completion Status:
+#   - {file-path}: File created/found (e.g., "docs/gdd.md")
+#   - skipped: Optional/conditional workflow that was skipped
+
+generated: 2026-01-03 16:07
+project: bamd
+project_type: independent
+selected_track: intermediate
+
+workflow_status:
+  game_brief: _bmad-output/analysis/brainstorming-session-2026-01-02.md
+  gdd: _bmad-output/gdd.md
+  architecture: _bmad-output/planning-artifacts/architecture.md
+  sprint_planning: _bmad-output/implementation-artifacts/sprint-status.yaml
+  epics: _bmad-output/epics.md
+  project_context: _bmad-output/project-context.md

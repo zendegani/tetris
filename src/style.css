@@ -1,0 +1,32 @@
+:root {
+  --neon-blue: #00faff;
+  --neon-pink: #ff00ff;
+  --bg-black: #050505;
+  --panel-grey: #1a1a1a;
+}
+
+body {
+  background-color: var(--bg-black);
+  color: var(--neon-blue);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.1rem;
+}
+
+#app {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+canvas {
+  border: 1px solid rgba(0, 250, 255, 0.2);
+  box-shadow: 0 0 20px rgba(0, 250, 255, 0.1);
+}

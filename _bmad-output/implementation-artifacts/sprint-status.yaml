@@ -1,0 +1,72 @@
+# generated: 2026-01-03 16:07
+# project: bamd
+# project_key: tetris-vibe
+# tracking_system: file-system
+# story_location: _bmad-output/implementation-artifacts
+
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+#
+# Epic Status Transitions:
+#   - backlog → in-progress: Automatically when first story is created (via create-story)
+#   - in-progress → done: Manually when all stories reach 'done' status
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created in stories folder
+#   - in-progress: Developer actively working on implementation
+#   - review: Ready for code review (via Dev's code-review workflow)
+#   - done: Story completed
+#
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+#
+# WORKFLOW NOTES:
+# ===============
+# - Epic transitions to 'in-progress' automatically when first story is created
+# - Stories can be worked in parallel if team capacity allows
+# - SM typically creates next story after previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+
+generated: 2026-01-03 16:07
+project: bamd
+project_key: tetris-vibe
+tracking_system: file-system
+story_location: _bmad-output/implementation-artifacts
+
+development_status:
+  epic-1: in-progress
+  1-1-grid-initialization: ready-for-dev
+  1-2-piece-definitions: backlog
+  1-3-true-random-generator: backlog
+  1-4-movement-collision: backlog
+  1-5-gravity-lock-clearing: backlog
+  epic-1-retrospective: optional
+
+  epic-2: backlog
+  2-1-neon-canvas-init: backlog
+  2-2-piece-glow-rendering: backlog
+  2-3-grid-milestone-pulse: backlog
+  2-4-elastic-collision-fx: backlog
+  2-5-industrial-audio-core: backlog
+  2-6-tactile-sfx-pack: backlog
+  epic-2-retrospective: optional
+
+  epic-3: backlog
+  3-1-seeded-prng-utility: backlog
+  3-2-visibility-auto-pause: backlog
+  3-3-localstorage-sync-zod: backlog
+  3-4-session-hot-resume: backlog
+  epic-3-retrospective: optional
+
+  epic-4: backlog
+  4-1-dashboard-ui-shell: backlog
+  4-2-milestone-tracking: backlog
+  4-3-palette-unlock-logic: backlog
+  4-4-simulation-practice-lab: backlog
+  epic-4-retrospective: optional
