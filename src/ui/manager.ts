@@ -6,6 +6,7 @@ export class UIManager {
     private overlayGameOver: HTMLElement;
     private finalScoreEl: HTMLElement;
     private btnRestart: HTMLElement;
+    private toastContainer: HTMLElement;
 
     constructor() {
         // Cache DOM elements
@@ -16,9 +17,10 @@ export class UIManager {
         this.overlayGameOver = document.getElementById('overlay-gameover')!;
         this.finalScoreEl = document.getElementById('final-score')!;
         this.btnRestart = document.getElementById('btn-restart')!;
+        this.toastContainer = document.getElementById('toast-container')!;
 
         // Check for missing elements to fail fast
-        if (!this.scoreEl || !this.levelEl || !this.linesEl) {
+        if (!this.scoreEl || !this.levelEl || !this.linesEl || !this.toastContainer) {
             console.error('UIManager: Missing HUD elements');
         }
 
@@ -54,5 +56,21 @@ export class UIManager {
     public showGameOver(finalScore: number): void {
         this.finalScoreEl.innerText = finalScore.toString();
         this.overlayGameOver.classList.remove('hidden');
+    }
+
+    public showToast(title: string, message: string): void {
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.innerHTML = `<h4>${title}</h4><p>${message}</p>`;
+
+        this.toastContainer.appendChild(toast);
+
+        // Remove after animation (3s + buffer)
+        setTimeout(() => {
+            toast.style.animation = 'fadeOut 0.5s ease-out forwards';
+            setTimeout(() => {
+                toast.remove();
+            }, 500);
+        }, 3000);
     }
 }

@@ -5,8 +5,9 @@ import { GameLoop } from './engine/loop';
 import { AudioEngine } from './audio/engine';
 import { PersistenceManager } from './logic/persistence';
 import { GameStateSchema } from './logic/schema';
-
 import { UIManager } from './ui/manager';
+import { MilestoneManager } from './logic/milestones';
+import { z } from 'zod';
 
 // Initialize Systems
 const engine = new TetrisEngine();
@@ -14,8 +15,14 @@ const renderer = new CanvasRenderer('app');
 const audio = new AudioEngine();
 const persistence = new PersistenceManager();
 const ui = new UIManager();
+const milestones = new MilestoneManager();
 
 let audioStarted = false;
+
+const savedMilestones = persistence.load('milestones', z.array(z.string()));
+if (savedMilestones) {
+  milestones.loadUnlockedIds(savedMilestones);
+}
 
 // Attempt Hot-Resume
 const savedState = persistence.load('gamestate', GameStateSchema);
@@ -34,10 +41,28 @@ const saveGame = () => {
   persistence.save('gamestate', engine.serialize());
 };
 
+const checkMilestones = (lastLineClearCount: number) => {
+  const unlocked = milestones.check({
+    score: engine.score,
+    level: engine.level,
+    linesCleared: engine.linesCleared,
+    lastLineClearCount,
+  });
+
+  if (unlocked.length > 0) {
+    unlocked.forEach(m => {
+      ui.showToast('MILESTONE UNLOCKED', m.name);
+      audio.playSFX('level-up');
+    });
+    persistence.save('milestones', milestones.getUnlockedIds());
+  }
+};
+
 engine.on('lock', () => {
   // Small shake on piece lock
   renderer.shake.trigger(3, 100);
   audio.playSFX('lock');
+  checkMilestones(0);
   saveGame();
 });
 
@@ -45,6 +70,7 @@ engine.on('level-up', () => {
   renderer.gridPulse.trigger('#ff00ff'); // Magenta pulse for level up
   audio.playSFX('level-up');
   ui.updateStats(engine.score, engine.level, engine.linesCleared);
+  checkMilestones(0);
   saveGame();
 });
 
@@ -65,6 +91,7 @@ engine.on('line-clear', (payload: any) => {
     audio.playSFX('line-clear');
   }
   ui.updateStats(engine.score, engine.level, engine.linesCleared);
+  checkMilestones(payload.count);
   saveGame(); // Ensure score is saved
 });
 

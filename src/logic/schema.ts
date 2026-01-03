@@ -29,6 +29,7 @@ export const GameStateSchema = z.object({
     nextPieceType: PieceTypeSchema,
     seed: z.union([z.string(), z.number()]).optional(), // For PRNG state
     prngState: z.number().optional(), // Internal state of Mulberry32
+    unlockedMilestones: z.array(z.string()).optional(),
 });
 
 export type SerializedGameState = z.infer<typeof GameStateSchema>;

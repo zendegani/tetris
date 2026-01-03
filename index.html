@@ -1,24 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tetris-Vibe | Survival Terminated</title>
-    <style>
-      body {
-        margin: 0;
-        background: #050505;
-        color: #00faff;
-        font-family: 'Inter', system-ui, -apple-system, sans-serif;
-        overflow: hidden;
-      }
-    </style>
-  </head>
-  <body>
-    <div id="app">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tetris-Vibe | Survival Terminated</title>
+  <style>
+    body {
+      margin: 0;
+      background: #050505;
+      color: #00faff;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      overflow: hidden;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app">
     <!-- Canvas will be injected here by CanvasRenderer -->
-    
+
     <div id="ui-layer">
       <!-- HUD Top -->
       <div class="hud-top">
@@ -58,8 +60,12 @@
           </div>
         </div>
       </div>
+
+      <!-- Notifications -->
+      <div id="toast-container"></div>
     </div>
   </div>
-    <script type="module" src="/src/main.ts"></script>
-  </body>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+
 </html>
