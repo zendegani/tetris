@@ -127,8 +127,7 @@ export class TetrisEngine extends EventEmitter {
                     this.grid.reset();
                     // No need to spawn again, currentPiece is already there and now valid since grid is empty
                 } else {
-                    this.state = 'game-over';
-                    this.emit('game-over');
+                    this.triggerGameOver();
                     return false;
                 }
             }
@@ -164,10 +163,20 @@ export class TetrisEngine extends EventEmitter {
         if (!this.currentPiece) return;
 
         const blocks = this.currentPiece.getBlocks();
-        blocks.forEach(block => {
-            if (block.y >= 0) {
-                this.grid.setCell(block.x, block.y, this.currentPiece!.type);
-            }
+        const validBlocks = blocks.filter(b => b.y >= 0);
+
+        // LOCK OUT CONDITION:
+        // If the piece is locking but has blocks off-screen (y < 0), it implies a Top Out / Block Out.
+        // In strict mode, if ANY part of the piece is above the ceiling when locking, it's a loss.
+        // Or at least if the piece didn't make it into the grid at all.
+        // For this "Purist" engine, let's say if it locks partially out of bounds, it's game over.
+        if (blocks.some(b => b.y < 0)) {
+            this.triggerGameOver();
+            return;
+        }
+
+        validBlocks.forEach(block => {
+            this.grid.setCell(block.x, block.y, this.currentPiece!.type);
         });
 
         this.emit('lock');
@@ -263,5 +272,10 @@ export class TetrisEngine extends EventEmitter {
             ghost.y += 1;
         }
         return ghost.y;
+    }
+
+    private triggerGameOver(): void {
+        this.state = 'game-over';
+        this.emit('game-over');
     }
 }

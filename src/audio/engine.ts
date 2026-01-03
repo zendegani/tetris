@@ -3,10 +3,7 @@ export type SFXType = 'move' | 'rotate' | 'lock' | 'line-clear' | 'tetris' | 'le
 export class AudioEngine {
     private ctx: AudioContext | null = null;
     private masterGain: GainNode | null = null;
-    private droneOsc: OscillatorNode | null = null;
-    private lfoOsc: OscillatorNode | null = null;
     private isInitialized: boolean = false;
-    private droneStarted: boolean = false;
 
     constructor() {
         // We defer creation until start() to respect browser autoplay policies
@@ -133,45 +130,8 @@ export class AudioEngine {
             await this.ctx.resume();
         }
 
-        this.startDrone();
     }
 
-    private startDrone(): void {
-        if (!this.ctx || !this.masterGain || this.droneStarted) return;
-
-        // 1. The Drone Source (Low Sawtooth for grit)
-        const drone = this.ctx.createOscillator();
-        drone.type = 'sawtooth';
-        drone.frequency.value = 55; // A1 (Low drone)
-
-        // 2. Filter (Lowpass to darken the sound)
-        const filter = this.ctx.createBiquadFilter();
-        filter.type = 'lowpass';
-        filter.frequency.value = 120;
-
-        // 3. LFO (Slow modulation of the filter cutoff for "breathing")
-        const lfo = this.ctx.createOscillator();
-        lfo.type = 'sine';
-        lfo.frequency.value = 0.1; // Very slow (10 seconds per cycle)
-
-        const lfoGain = this.ctx.createGain();
-        lfoGain.gain.value = 100; // Modulate filter freq by +/- 100Hz
-
-        // Connections
-        lfo.connect(lfoGain);
-        lfoGain.connect(filter.frequency);
-
-        drone.connect(filter);
-        filter.connect(this.masterGain);
-
-        // Start Oscillators
-        drone.start();
-        lfo.start();
-
-        this.droneOsc = drone;
-        this.lfoOsc = lfo;
-        this.droneStarted = true;
-    }
 
     public setVolume(value: number): void {
         if (this.masterGain) {
@@ -182,11 +142,8 @@ export class AudioEngine {
     }
 
     public destroy(): void {
-        if (this.droneOsc) this.droneOsc.stop();
-        if (this.lfoOsc) this.lfoOsc.stop();
         if (this.ctx) this.ctx.close();
 
         this.isInitialized = false;
-        this.droneStarted = false;
     }
 }

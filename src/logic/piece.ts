@@ -10,6 +10,16 @@ export enum PieceType {
     Z = 7,
 }
 
+export const PIECE_COLORS: Record<PieceType, string> = {
+    [PieceType.I]: '#00faff', // Cyan
+    [PieceType.J]: '#0000ff', // Blue
+    [PieceType.L]: '#ff7f00', // Orange
+    [PieceType.O]: '#ffff00', // Yellow
+    [PieceType.S]: '#00ff00', // Lime
+    [PieceType.T]: '#800080', // Purple
+    [PieceType.Z]: '#ff0000', // Red
+};
+
 export type PieceDefinition = {
     type: PieceType;
     rotations: Point[][];
