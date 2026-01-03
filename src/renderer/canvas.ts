@@ -116,7 +116,7 @@ export class CanvasRenderer {
     }
 
     private drawLockedBlocks(engine: TetrisEngine): void {
-        const gridData = engine.grid.getRawGrid();
+        const gridData = engine.grid.getGridRef();
         const colors = this.themeManager.getActiveColors();
 
         for (let y = 0; y < GRID_HEIGHT; y++) {
