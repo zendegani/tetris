@@ -166,11 +166,10 @@ export class TetrisEngine extends EventEmitter {
         const validBlocks = blocks.filter(b => b.y >= 0);
 
         // LOCK OUT CONDITION:
-        // If the piece is locking but has blocks off-screen (y < 0), it implies a Top Out / Block Out.
-        // In strict mode, if ANY part of the piece is above the ceiling when locking, it's a loss.
-        // Or at least if the piece didn't make it into the grid at all.
-        // For this "Purist" engine, let's say if it locks partially out of bounds, it's game over.
-        if (blocks.some(b => b.y < 0)) {
+        // "Lock Out": The piece locked completely above the visible playfield.
+        // If EVERY block is off-screen (y < 0), it's a game over.
+        // Partial lock above screen is valid in many guidelines (e.g. infinite spin at top).
+        if (blocks.every(b => b.y < 0)) {
             this.triggerGameOver();
             return;
         }
