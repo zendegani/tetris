@@ -27,11 +27,17 @@ export class CanvasRenderer {
         }
         this.container = container;
 
-        // clear container
-        this.container.innerHTML = '';
+        // Do not clear container as it holds the UI
+        // this.container.innerHTML = '';
 
         this.canvas = document.createElement('canvas');
-        this.container.appendChild(this.canvas);
+
+        // Insert canvas as the first child so it sits behind the UI
+        if (this.container.firstChild) {
+            this.container.insertBefore(this.canvas, this.container.firstChild);
+        } else {
+            this.container.appendChild(this.canvas);
+        }
 
         const context = this.canvas.getContext('2d');
         if (!context) {

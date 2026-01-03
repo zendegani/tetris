@@ -40,10 +40,11 @@ export class UIManager {
             console.error('UIManager: Missing HUD elements');
         }
 
-        // Bind internal events
+    }
+
+    public bindRestartAction(callback: () => void): void {
         this.btnRestart.addEventListener('click', () => {
-            // Reload page for hard reset
-            window.location.reload();
+            callback();
         });
     }
 
