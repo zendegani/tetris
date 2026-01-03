@@ -3,24 +3,45 @@ import { TetrisEngine } from './logic/engine';
 import { CanvasRenderer } from './renderer/canvas';
 import { GameLoop } from './engine/loop';
 import { AudioEngine } from './audio/engine';
+import { PersistenceManager } from './logic/persistence';
+import { GameStateSchema } from './logic/schema';
 
 // Initialize Systems
 const engine = new TetrisEngine();
-// We need a wrapper element for the canvas, let's use #app
 const renderer = new CanvasRenderer('app');
 const audio = new AudioEngine();
+const persistence = new PersistenceManager();
 
 let audioStarted = false;
+
+// Attempt Hot-Resume
+const savedState = persistence.load('gamestate', GameStateSchema);
+if (savedState) {
+  console.log('Resuming Saved Session...');
+  engine.deserialize(savedState);
+  engine.pause();
+}
+
+// Auto-Save Bindings
+const saveGame = () => {
+  persistence.save('gamestate', engine.serialize());
+};
 
 engine.on('lock', () => {
   // Small shake on piece lock
   renderer.shake.trigger(3, 100);
   audio.playSFX('lock');
+  saveGame();
 });
 
 engine.on('level-up', () => {
   renderer.gridPulse.trigger('#ff00ff'); // Magenta pulse for level up
   audio.playSFX('level-up');
+  saveGame();
+});
+
+engine.on('state-change', () => {
+  saveGame();
 });
 
 engine.on('line-clear', (payload: any) => {
@@ -111,6 +132,11 @@ window.addEventListener('keydown', (e) => {
       if (engine.rotate()) {
         audio.playSFX('rotate');
       }
+      break;
+    case 'KeyR':
+      // Hard Reset
+      persistence.clear('gamestate');
+      window.location.reload();
       break;
   }
 });

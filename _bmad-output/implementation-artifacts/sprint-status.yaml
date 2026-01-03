@@ -61,11 +61,11 @@ development_status:
   3-1-seeded-prng-utility: done
   3-2-visibility-auto-pause: done
   3-3-localstorage-sync-zod: done
-  3-4-session-hot-resume: ready-for-dev
-  epic-3-retrospective: optional
+  3-4-session-hot-resume: done
+  epic-3-retrospective: skipped
 
-  epic-4: backlog
-  4-1-dashboard-ui-shell: backlog
+  epic-4: in-progress
+  4-1-dashboard-ui-shell: ready-for-dev
   4-2-milestone-tracking: backlog
   4-3-palette-unlock-logic: backlog
   4-4-simulation-practice-lab: backlog

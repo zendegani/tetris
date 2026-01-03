@@ -4,6 +4,8 @@ import { canMove, canRotate } from './movement';
 import { RandomGenerator } from './random';
 import { EventEmitter } from './events';
 
+import { SerializedGameState } from './schema';
+
 export type GameState = 'playing' | 'paused' | 'game-over';
 
 export class TetrisEngine extends EventEmitter {
@@ -23,6 +25,68 @@ export class TetrisEngine extends EventEmitter {
         this.randomGen = new RandomGenerator(seed);
         this.nextPieceType = this.randomGen.next();
         this.spawnPiece();
+    }
+
+    // ... existing methods ...
+
+    public serialize(): SerializedGameState {
+        return {
+            score: this.score,
+            level: this.level,
+            linesCleared: this.linesCleared,
+            grid: this.grid.getRawGrid(),
+            currentPiece: this.currentPiece ? {
+                type: this.currentPiece.type,
+                x: this.currentPiece.x,
+                y: this.currentPiece.y,
+                rotation: this.currentPiece.getRotation(),
+            } : null,
+            nextPieceType: this.nextPieceType,
+            seed: this.randomGen.getState(),
+            prngState: this.randomGen.getState(),
+        };
+    }
+
+    public deserialize(data: SerializedGameState): void {
+        this.score = data.score;
+        this.level = data.level;
+        this.linesCleared = data.linesCleared;
+
+        // Restore Grid
+        this.grid.reset();
+        for (let y = 0; y < this.grid.getHeight(); y++) {
+            for (let x = 0; x < this.grid.getWidth(); x++) {
+                if (data.grid[y] && data.grid[y][x]) {
+                    this.grid.setCell(x, y, data.grid[y][x]);
+                }
+            }
+        }
+
+        // Restore PRNG
+        if (data.seed !== undefined) {
+            // If we have a stored internal state, might just want to restore that directly
+            // But reseed(seed) is safer if we don't expose internal state setter
+            // Wait, RandomGenerator has setState/getState now using 'seed' property as state
+            if (typeof data.seed === 'number') {
+                this.randomGen.setState(data.seed);
+            } else {
+                this.randomGen.reseed(data.seed);
+            }
+        }
+
+        // Restore Pieces
+        this.nextPieceType = data.nextPieceType;
+
+        if (data.currentPiece) {
+            this.currentPiece = new Piece(
+                data.currentPiece.type,
+                data.currentPiece.x,
+                data.currentPiece.y
+            );
+            this.currentPiece.setRotation(data.currentPiece.rotation);
+        } else {
+            this.currentPiece = null;
+        }
     }
 
     public spawnPiece(): boolean {
