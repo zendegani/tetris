@@ -203,6 +203,12 @@ window.addEventListener('keydown', (e) => {
         audio.playSFX('rotate');
       }
       break;
+    case 'Space':
+      if (engine.hardDrop()) {
+        audio.playSFX('lock'); // Hard drop ends in lock
+        renderer.shake.trigger(5, 150); // Harder shake
+      }
+      break;
     case 'KeyR':
       // Hard Reset
       persistence.clear('gamestate');
