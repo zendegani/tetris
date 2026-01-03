@@ -15,16 +15,25 @@ let audioStarted = false;
 engine.on('lock', () => {
   // Small shake on piece lock
   renderer.shake.trigger(3, 100);
+  audio.playSFX('lock');
 });
 
 engine.on('level-up', () => {
   renderer.gridPulse.trigger('#ff00ff'); // Magenta pulse for level up
+  audio.playSFX('level-up');
 });
 
 engine.on('line-clear', (payload: any) => {
   if (payload.type === 'tetris') {
     renderer.gridPulse.trigger('#00faff'); // Cyan pulse for Tetris
+    audio.playSFX('tetris');
+  } else {
+    audio.playSFX('line-clear');
   }
+});
+
+engine.on('game-over', () => {
+  audio.playSFX('game-over');
 });
 
 const update = (deltaTime: number) => {
@@ -59,18 +68,26 @@ window.addEventListener('keydown', (e) => {
 
   switch (e.code) {
     case 'ArrowLeft':
-      engine.moveLeft();
+      if (engine.moveLeft()) {
+        audio.playSFX('move');
+      }
       break;
     case 'ArrowRight':
-      engine.moveRight();
+      if (engine.moveRight()) {
+        audio.playSFX('move');
+      }
       break;
     case 'ArrowDown':
-      engine.softDrop();
+      if (engine.softDrop()) {
+        audio.playSFX('move');
+      }
       // Reset gravity accumulator to prevent double-drop feel
       gravityAccumulator = 0;
       break;
     case 'ArrowUp':
-      engine.rotate();
+      if (engine.rotate()) {
+        audio.playSFX('rotate');
+      }
       break;
   }
 });
