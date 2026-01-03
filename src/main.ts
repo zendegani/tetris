@@ -63,7 +63,12 @@ if (savedState) {
   console.log('Resuming Saved Session...');
   engine.deserialize(savedState);
   engine.pause();
+  engine.pause();
   ui.updateStats(engine.score, engine.level, engine.linesCleared);
+  // Restore time? V1 doesn't support persisting time yet, reset to 0 or ideally save it in gamestate.
+  // For now, let's start at 0 or add TODO.
+  // actually, if we want "Persistent Session", we should restore time.
+  // But serialized state doesn't have it. Task said "Implement Timer Display", not "Persist Timer".
   ui.togglePause(true);
 } else {
   ui.updateStats(engine.score, engine.level, engine.linesCleared);
@@ -143,6 +148,16 @@ const update = (deltaTime: number) => {
   renderer.shake.update(deltaTime);
 
   handleGravity(deltaTime);
+
+  // Timer Logic
+  if (engine.state === 'playing') {
+    timeAccumulator += deltaTime;
+    if (timeAccumulator >= 1000) {
+      elapsedTime += 1;
+      timeAccumulator -= 1000;
+      ui.updateTime(elapsedTime);
+    }
+  }
 };
 
 const render = (_interpolation: number) => {
@@ -193,6 +208,10 @@ window.addEventListener('keydown', (e) => {
 // Gravity Logic (Simple version for V1)
 let gravityAccumulator = 0;
 const gravityThreshold = 500; // ms per drop (standard speed for now)
+
+// Timer Logic
+let elapsedTime = 0;
+let timeAccumulator = 0;
 
 function handleGravity(dt: number) {
   gravityAccumulator += dt;

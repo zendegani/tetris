@@ -1,4 +1,5 @@
 import { TetrisEngine } from '../logic/engine';
+import { PIECE_COLORS, PieceType } from '../logic/piece';
 import { CELL_SIZE, GRID_HEIGHT, GRID_WIDTH, GHOST_ALPHA, GLOW_BLUR } from './constants';
 import { PulseEffect, ShakeEffect } from './fx';
 import { ThemeManager } from './themes';
@@ -116,15 +117,8 @@ export class CanvasRenderer {
             for (let x = 0; x < GRID_WIDTH; x++) {
                 const cellValue = gridData[y][x];
                 if (cellValue > 0) {
-                    // Use primary/accent logic instead of piece-specific colors for now
-                    // OR map pieces to variations of the theme. 
-                    // For simplicity in V1 themes -> All blocks use Primary + Accent variations?
-                    // Let's stick to NEON_PALETTE for "Neon" theme, but what about others?
-                    // To support re-skinning, we should probably ignore the PieceType color map 
-                    // IF we want "Monochrome Matrix". 
-                    // BUT, if we want multi-colored pieces in new themes, we need a Palette map.
-                    // For THIS Iteration: The 'Primary' color of the palette is the Block Color.
-                    this.drawBlock(x, y, colors.primary);
+                    const color = PIECE_COLORS[cellValue as PieceType] || colors.primary;
+                    this.drawBlock(x, y, color);
                 }
             }
         }
@@ -136,9 +130,11 @@ export class CanvasRenderer {
         const colors = this.themeManager.getActiveColors();
         const blocks = engine.currentPiece.getBlocks();
 
+        const color = PIECE_COLORS[engine.currentPiece.type] || colors.primary;
+
         blocks.forEach(block => {
             if (block.y >= 0) {
-                this.drawBlock(block.x, block.y, colors.primary, true);
+                this.drawBlock(block.x, block.y, color, true);
             }
         });
     }

@@ -2,6 +2,7 @@ export class UIManager {
     private scoreEl: HTMLElement;
     private levelEl: HTMLElement;
     private linesEl: HTMLElement;
+    private timeEl: HTMLElement;
     private overlayPause: HTMLElement;
     private overlayGameOver: HTMLElement;
     private finalScoreEl: HTMLElement;
@@ -19,6 +20,7 @@ export class UIManager {
         this.scoreEl = document.getElementById('score-value')!;
         this.levelEl = document.getElementById('level-value')!;
         this.linesEl = document.getElementById('lines-value')!;
+        this.timeEl = document.getElementById('time-value')!;
         this.overlayPause = document.getElementById('overlay-pause')!;
         this.overlayGameOver = document.getElementById('overlay-gameover')!;
         this.finalScoreEl = document.getElementById('final-score')!;
@@ -104,6 +106,12 @@ export class UIManager {
         this.scoreEl.innerText = score.toString();
         this.levelEl.innerText = level.toString();
         this.linesEl.innerText = lines.toString();
+    }
+
+    public updateTime(seconds: number): void {
+        const m = Math.floor(seconds / 60);
+        const s = Math.floor(seconds % 60);
+        this.timeEl.innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
     }
 
     public showPause(): void {
