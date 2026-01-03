@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { TetrisEngine } from './engine';
 import { PieceType } from './piece';
 
@@ -89,27 +89,51 @@ describe('TetrisEngine', () => {
     });
 
     it('should calculate ghost piece position correctly', () => {
-        // Initialize with default piece (usually at y=-1 or 0)
-        // Let's create a clear column drop.
-        // I piece spawns at center. 
+        // ... (truncated) ...
         expect(engine.currentPiece).not.toBeNull();
-
         const ghostY = engine.getGhostY();
-        // Since grid is empty, ghost should be at the bottom.
-        // Piece bottom blocks depend on rotation, but for I-piece:
-        // Rot 0 (flat): y=1 blocks. Bottom of grid is 19. Ghost should align blocks to 19.
-        // So ghost Y should be such that y+1 = 19 => y=18.
-
-        // Actually, if I-Piece is flat (rot 0), blocks are at `y+1`.
-        // Lowest valid block Y is 19.
-        // So piece.y + 1 = 19 -> piece.y = 18.
         expect(ghostY).toBe(18);
 
-        // Add a block to obstruct
         engine.grid.setCell(engine.currentPiece!.x + 1, 15, PieceType.T);
         const newGhostY = engine.getGhostY();
-        // Block at 15. Ghost blocks should land at 14.
-        // piece.y + 1 = 14 => piece.y = 13.
         expect(newGhostY).toBe(13);
+    });
+
+    it('should emit events on scoring', () => {
+        const lineClearSpy = vi.fn();
+        const levelUpSpy = vi.fn();
+
+        engine.on('line-clear', lineClearSpy);
+        engine.on('level-up', levelUpSpy);
+
+        // Clear 4 lines (Tetris)
+        engine.linesCleared = 0;
+        engine.level = 1;
+
+        // Mock 4 full rows
+        for (let y = 16; y < 20; y++) {
+            for (let x = 0; x < 10; x++) {
+                engine.grid.setCell(x, y, PieceType.I);
+            }
+        }
+
+        engine.lockPiece(); // Triggers clearLines
+
+        expect(lineClearSpy).toHaveBeenCalledWith({ count: 4, type: 'tetris' });
+        // Level shouldn't up yet (4 lines < 10)
+        expect(levelUpSpy).not.toHaveBeenCalled();
+
+        // Mock 6 more lines to trigger level up
+        engine.linesCleared = 6;
+        // Mock 4 full rows again
+        for (let y = 16; y < 20; y++) {
+            for (let x = 0; x < 10; x++) {
+                engine.grid.setCell(x, y, PieceType.I);
+            }
+        }
+        engine.lockPiece();
+
+        expect(engine.linesCleared).toBe(10);
+        expect(levelUpSpy).toHaveBeenCalledWith(2);
     });
 });

@@ -2,10 +2,11 @@ import { Grid } from './grid';
 import { Piece, PieceType } from './piece';
 import { canMove, canRotate } from './movement';
 import { RandomGenerator } from './random';
+import { EventEmitter } from './events';
 
 export type GameState = 'playing' | 'paused' | 'game-over';
 
-export class TetrisEngine {
+export class TetrisEngine extends EventEmitter {
     public grid: Grid;
     public currentPiece: Piece | null = null;
     public nextPieceType: PieceType;
@@ -17,6 +18,7 @@ export class TetrisEngine {
     private randomGen: RandomGenerator;
 
     constructor(seed?: string) {
+        super();
         this.grid = new Grid();
         this.randomGen = new RandomGenerator(seed);
         this.nextPieceType = this.randomGen.next();
@@ -39,6 +41,7 @@ export class TetrisEngine {
             this.currentPiece.y = 0;
             if (!canMove(this.grid, this.currentPiece, 0, 0)) {
                 this.state = 'game-over';
+                this.emit('game-over');
                 return false;
             }
         }
@@ -65,6 +68,7 @@ export class TetrisEngine {
             }
         });
 
+        this.emit('lock');
         this.clearLines();
         this.spawnPiece();
     }
@@ -104,8 +108,14 @@ export class TetrisEngine {
         this.score += basePoints[count] * this.level;
         this.linesCleared += count;
 
+        this.emit('line-clear', { count, type: count === 4 ? 'tetris' : 'normal' });
+
         // Level up every 10 lines
-        this.level = Math.floor(this.linesCleared / 10) + 1;
+        const newLevel = Math.floor(this.linesCleared / 10) + 1;
+        if (newLevel > this.level) {
+            this.level = newLevel;
+            this.emit('level-up', this.level);
+        }
     }
 
     public moveLeft(): boolean {

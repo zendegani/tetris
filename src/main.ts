@@ -9,15 +9,21 @@ const engine = new TetrisEngine();
 const renderer = new CanvasRenderer('app');
 
 // Game Loop Wiring
-const update = (_deltaTime: number) => {
-  // We process engine ticks based on time. 
-  // For now, let's just simple-tick the engine.
-  // In a real game, we'd accumulate time for the specific drop speed.
-  // But engine.tick() moves the piece down by one step.
-  // We shouldn't call engine.tick() every 16ms (60fps), that's too fast!
-  // We need a separate accumulator for gravity.
+engine.on('level-up', () => {
+  renderer.gridPulse.trigger('#ff00ff'); // Magenta pulse for level up
+});
 
-  handleGravity(_deltaTime);
+engine.on('line-clear', (payload: any) => {
+  if (payload.type === 'tetris') {
+    renderer.gridPulse.trigger('#00faff'); // Cyan pulse for Tetris
+  }
+});
+
+const update = (deltaTime: number) => {
+  // Update visual effects
+  renderer.gridPulse.update(deltaTime);
+
+  handleGravity(deltaTime);
 };
 
 const render = (_interpolation: number) => {

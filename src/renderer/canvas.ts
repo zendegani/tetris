@@ -1,6 +1,7 @@
 import { TetrisEngine } from '../logic/engine';
-import { Piece } from '../logic/piece';
 import { CELL_SIZE, GRID_HEIGHT, GRID_WIDTH, NEON_PALETTE, GHOST_ALPHA, GLOW_BLUR } from './constants';
+
+import { PulseEffect } from './fx';
 
 export class CanvasRenderer {
     private canvas: HTMLCanvasElement;
@@ -9,7 +10,10 @@ export class CanvasRenderer {
     private offsetX: number = 0;
     private offsetY: number = 0;
 
+    public gridPulse: PulseEffect;
+
     constructor(containerId: string) {
+        this.gridPulse = new PulseEffect();
         const container = document.getElementById(containerId);
         if (!container) {
             throw new Error(`Container element #${containerId} not found`);
@@ -64,14 +68,29 @@ export class CanvasRenderer {
     }
 
     private drawGridBoundaries(): void {
-        this.ctx.strokeStyle = '#1a1a1a';
         this.ctx.lineWidth = 2;
+
+        if (this.gridPulse.isActive()) {
+            this.ctx.strokeStyle = this.gridPulse.getColor();
+            this.ctx.shadowBlur = 20;
+            this.ctx.shadowColor = this.gridPulse.getColor();
+            this.ctx.globalAlpha = this.gridPulse.getAlpha();
+        } else {
+            this.ctx.strokeStyle = '#1a1a1a';
+            this.ctx.shadowBlur = 0;
+            this.ctx.globalAlpha = 1.0;
+        }
+
         this.ctx.strokeRect(
             this.offsetX - 2,
             this.offsetY - 2,
             GRID_WIDTH * CELL_SIZE + 4,
             GRID_HEIGHT * CELL_SIZE + 4
         );
+
+        // Reset
+        this.ctx.shadowBlur = 0;
+        this.ctx.globalAlpha = 1.0;
     }
 
     private drawLockedBlocks(engine: TetrisEngine): void {
