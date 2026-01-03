@@ -140,6 +140,39 @@ canvas {
   box-shadow: 0 0 20px var(--neon-blue);
 }
 
+.modal button:hover {
+  background: var(--neon-blue);
+  color: #000;
+  box-shadow: 0 0 20px var(--neon-blue);
+}
+
+.settings-group {
+  margin-top: 20px;
+  text-align: left;
+}
+
+.settings-group label {
+  display: block;
+  font-size: 12px;
+  color: #aaa;
+  margin-bottom: 5px;
+}
+
+.settings-group select {
+  width: 100%;
+  background: #000;
+  color: #fff;
+  border: 1px solid var(--neon-blue);
+  padding: 8px;
+  font-family: inherit;
+  font-size: 16px;
+  outline: none;
+}
+
+.settings-group select:focus {
+  box-shadow: 0 0 10px var(--neon-blue);
+}
+
 /* specific colors */
 #overlay-gameover .modal {
   border-color: #ff0055;

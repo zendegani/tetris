@@ -7,6 +7,7 @@ export class UIManager {
     private finalScoreEl: HTMLElement;
     private btnRestart: HTMLElement;
     private toastContainer: HTMLElement;
+    private themeSelect: HTMLSelectElement;
 
     constructor() {
         // Cache DOM elements
@@ -18,9 +19,10 @@ export class UIManager {
         this.finalScoreEl = document.getElementById('final-score')!;
         this.btnRestart = document.getElementById('btn-restart')!;
         this.toastContainer = document.getElementById('toast-container')!;
+        this.themeSelect = document.getElementById('theme-select') as HTMLSelectElement;
 
         // Check for missing elements to fail fast
-        if (!this.scoreEl || !this.levelEl || !this.linesEl || !this.toastContainer) {
+        if (!this.scoreEl || !this.levelEl || !this.linesEl || !this.toastContainer || !this.themeSelect) {
             console.error('UIManager: Missing HUD elements');
         }
 
@@ -28,6 +30,35 @@ export class UIManager {
         this.btnRestart.addEventListener('click', () => {
             // Reload page for hard reset
             window.location.reload();
+        });
+    }
+
+    public bindThemeSelector(
+        themeManager: any,
+        unlockedMilestoneIds: string[]
+    ) {
+        // Populate options
+        const palettes = themeManager.getAvailablePalettes(unlockedMilestoneIds);
+        this.themeSelect.innerHTML = '';
+
+        palettes.forEach((p: any) => {
+            const opt = document.createElement('option');
+            opt.value = p.id;
+            opt.text = p.name;
+            this.themeSelect.appendChild(opt);
+        });
+
+        // Set current
+        this.themeSelect.value = themeManager.getActivePaletteId();
+
+        // Bind change
+        this.themeSelect.addEventListener('change', (e) => {
+            const target = e.target as HTMLSelectElement;
+            themeManager.setTheme(target.value);
+            target.blur();
+
+            // Dispatch event for persistence
+            window.dispatchEvent(new CustomEvent('theme-change', { detail: target.value }));
         });
     }
 

@@ -1,6 +1,7 @@
 import { TetrisEngine } from '../logic/engine';
-import { CELL_SIZE, GRID_HEIGHT, GRID_WIDTH, NEON_PALETTE, GHOST_ALPHA, GLOW_BLUR } from './constants';
+import { CELL_SIZE, GRID_HEIGHT, GRID_WIDTH, GHOST_ALPHA, GLOW_BLUR } from './constants';
 import { PulseEffect, ShakeEffect } from './fx';
+import { ThemeManager } from './themes';
 
 export class CanvasRenderer {
     private canvas: HTMLCanvasElement;
@@ -12,9 +13,13 @@ export class CanvasRenderer {
     public gridPulse: PulseEffect;
     public shake: ShakeEffect;
 
-    constructor(containerId: string) {
+    private themeManager: ThemeManager;
+
+    constructor(containerId: string, themeManager: ThemeManager) {
         this.gridPulse = new PulseEffect();
         this.shake = new ShakeEffect();
+        this.themeManager = themeManager;
+
         const container = document.getElementById(containerId);
         if (!container) {
             throw new Error(`Container element #${containerId} not found`);
@@ -56,7 +61,8 @@ export class CanvasRenderer {
     }
 
     public clear(): void {
-        this.ctx.fillStyle = '#050505';
+        const colors = this.themeManager.getActiveColors();
+        this.ctx.fillStyle = colors.bg;
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
@@ -77,6 +83,7 @@ export class CanvasRenderer {
 
     private drawGridBoundaries(): void {
         this.ctx.lineWidth = 2;
+        const colors = this.themeManager.getActiveColors();
 
         if (this.gridPulse.isActive()) {
             this.ctx.strokeStyle = this.gridPulse.getColor();
@@ -84,7 +91,7 @@ export class CanvasRenderer {
             this.ctx.shadowColor = this.gridPulse.getColor();
             this.ctx.globalAlpha = this.gridPulse.getAlpha();
         } else {
-            this.ctx.strokeStyle = '#1a1a1a';
+            this.ctx.strokeStyle = colors.grid;
             this.ctx.shadowBlur = 0;
             this.ctx.globalAlpha = 1.0;
         }
@@ -103,12 +110,21 @@ export class CanvasRenderer {
 
     private drawLockedBlocks(engine: TetrisEngine): void {
         const gridData = engine.grid.getRawGrid();
+        const colors = this.themeManager.getActiveColors();
+
         for (let y = 0; y < GRID_HEIGHT; y++) {
             for (let x = 0; x < GRID_WIDTH; x++) {
                 const cellValue = gridData[y][x];
                 if (cellValue > 0) {
-                    const color = NEON_PALETTE[cellValue as keyof typeof NEON_PALETTE];
-                    this.drawBlock(x, y, color);
+                    // Use primary/accent logic instead of piece-specific colors for now
+                    // OR map pieces to variations of the theme. 
+                    // For simplicity in V1 themes -> All blocks use Primary + Accent variations?
+                    // Let's stick to NEON_PALETTE for "Neon" theme, but what about others?
+                    // To support re-skinning, we should probably ignore the PieceType color map 
+                    // IF we want "Monochrome Matrix". 
+                    // BUT, if we want multi-colored pieces in new themes, we need a Palette map.
+                    // For THIS Iteration: The 'Primary' color of the palette is the Block Color.
+                    this.drawBlock(x, y, colors.primary);
                 }
             }
         }
@@ -117,13 +133,12 @@ export class CanvasRenderer {
     private drawCurrentPiece(engine: TetrisEngine): void {
         if (!engine.currentPiece) return;
 
-        const color = NEON_PALETTE[engine.currentPiece.type];
+        const colors = this.themeManager.getActiveColors();
         const blocks = engine.currentPiece.getBlocks();
 
         blocks.forEach(block => {
-            // Only draw if visible (y >= 0)
             if (block.y >= 0) {
-                this.drawBlock(block.x, block.y, color, true);
+                this.drawBlock(block.x, block.y, colors.primary, true);
             }
         });
     }
@@ -133,16 +148,22 @@ export class CanvasRenderer {
 
         const ghostY = engine.getGhostY();
         const blocks = engine.currentPiece.getBlocks();
-        const color = NEON_PALETTE[engine.currentPiece.type];
+        const colors = this.themeManager.getActiveColors();
 
         // Calculate delta Y to shift blocks
         const deltaY = ghostY - engine.currentPiece.y;
 
         this.ctx.globalAlpha = GHOST_ALPHA;
+        this.ctx.fillStyle = colors.ghost; // Use theme ghost color
+
         blocks.forEach(block => {
             const y = block.y + deltaY;
             if (y >= 0) {
-                this.drawBlock(block.x, y, color, false);
+                // Manually draw ghost block to use fillStyle
+                const px = this.offsetX + block.x * CELL_SIZE;
+                const py = this.offsetY + y * CELL_SIZE;
+                this.ctx.fillRect(px + 1, py + 1, CELL_SIZE - 2, CELL_SIZE - 2);
+                this.ctx.shadowBlur = 0;
             }
         });
         this.ctx.globalAlpha = 1.0;

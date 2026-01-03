@@ -7,15 +7,19 @@ import { PersistenceManager } from './logic/persistence';
 import { GameStateSchema } from './logic/schema';
 import { UIManager } from './ui/manager';
 import { MilestoneManager } from './logic/milestones';
+import { ThemeManager } from './renderer/themes';
 import { z } from 'zod';
 
 // Initialize Systems
 const engine = new TetrisEngine();
-const renderer = new CanvasRenderer('app');
 const audio = new AudioEngine();
 const persistence = new PersistenceManager();
 const ui = new UIManager();
 const milestones = new MilestoneManager();
+const themeManager = new ThemeManager();
+
+// Renderer needs ThemeManager
+const renderer = new CanvasRenderer('app', themeManager);
 
 let audioStarted = false;
 
@@ -23,6 +27,23 @@ const savedMilestones = persistence.load('milestones', z.array(z.string()));
 if (savedMilestones) {
   milestones.loadUnlockedIds(savedMilestones);
 }
+
+// Bind UI
+ui.bindThemeSelector(themeManager, milestones.getUnlockedIds());
+
+// Load Theme
+const savedTheme = persistence.load('theme', z.string());
+if (savedTheme) {
+  themeManager.setTheme(savedTheme);
+  // Force UI sync if needed, but bindThemeSelector sets initial value
+  // Re-bind to ensure UI reflects loaded theme
+  ui.bindThemeSelector(themeManager, milestones.getUnlockedIds());
+}
+
+// Listen for Theme Changes from UI
+window.addEventListener('theme-change', ((e: CustomEvent) => {
+  persistence.save('theme', e.detail);
+}) as EventListener);
 
 // Attempt Hot-Resume
 const savedState = persistence.load('gamestate', GameStateSchema);
@@ -55,6 +76,9 @@ const checkMilestones = (lastLineClearCount: number) => {
       audio.playSFX('level-up');
     });
     persistence.save('milestones', milestones.getUnlockedIds());
+
+    // Refresh Palette Options
+    ui.bindThemeSelector(themeManager, milestones.getUnlockedIds());
   }
 };
 
