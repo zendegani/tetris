@@ -1,7 +1,6 @@
 import { TetrisEngine } from '../logic/engine';
 import { CELL_SIZE, GRID_HEIGHT, GRID_WIDTH, NEON_PALETTE, GHOST_ALPHA, GLOW_BLUR } from './constants';
-
-import { PulseEffect } from './fx';
+import { PulseEffect, ShakeEffect } from './fx';
 
 export class CanvasRenderer {
     private canvas: HTMLCanvasElement;
@@ -11,9 +10,11 @@ export class CanvasRenderer {
     private offsetY: number = 0;
 
     public gridPulse: PulseEffect;
+    public shake: ShakeEffect;
 
     constructor(containerId: string) {
         this.gridPulse = new PulseEffect();
+        this.shake = new ShakeEffect();
         const container = document.getElementById(containerId);
         if (!container) {
             throw new Error(`Container element #${containerId} not found`);
@@ -61,10 +62,17 @@ export class CanvasRenderer {
 
     public render(engine: TetrisEngine): void {
         this.clear();
+
+        const shakeOffset = this.shake.getOffset();
+        this.ctx.save();
+        this.ctx.translate(shakeOffset.x, shakeOffset.y);
+
         this.drawGridBoundaries();
         this.drawLockedBlocks(engine);
         this.drawGhostPiece(engine);
         this.drawCurrentPiece(engine);
+
+        this.ctx.restore();
     }
 
     private drawGridBoundaries(): void {

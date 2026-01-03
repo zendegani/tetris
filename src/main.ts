@@ -8,7 +8,11 @@ const engine = new TetrisEngine();
 // We need a wrapper element for the canvas, let's use #app
 const renderer = new CanvasRenderer('app');
 
-// Game Loop Wiring
+engine.on('lock', () => {
+  // Small shake on piece lock
+  renderer.shake.trigger(3, 100);
+});
+
 engine.on('level-up', () => {
   renderer.gridPulse.trigger('#ff00ff'); // Magenta pulse for level up
 });
@@ -22,6 +26,7 @@ engine.on('line-clear', (payload: any) => {
 const update = (deltaTime: number) => {
   // Update visual effects
   renderer.gridPulse.update(deltaTime);
+  renderer.shake.update(deltaTime);
 
   handleGravity(deltaTime);
 };
