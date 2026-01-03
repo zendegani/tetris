@@ -51,4 +51,23 @@ describe('RandomGenerator', () => {
             expect(count).toBeLessThan(2000);
         });
     });
+
+    it('should restore state correctly', () => {
+        const gen1 = new RandomGenerator('save-state-test');
+        // Consume some
+        gen1.next();
+        gen1.next();
+
+        const state = gen1.getState();
+        const nextFrom1 = gen1.next();
+
+        const gen2 = new RandomGenerator(); // Seed doesn't matter if we set state immediately
+        gen2.setState(state);
+        const nextFrom2 = gen2.next();
+
+        expect(nextFrom1).toBe(nextFrom2);
+
+        // Verify continued sequence
+        expect(gen1.next()).toBe(gen2.next());
+    });
 });

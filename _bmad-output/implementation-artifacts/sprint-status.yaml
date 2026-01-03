@@ -54,12 +54,12 @@ development_status:
   2-3-grid-milestone-pulse: done
   2-4-elastic-collision-fx: done
   2-5-industrial-audio-core: done
-  2-6-tactile-sfx-pack: ready-for-dev
-  epic-2-retrospective: optional
+  2-6-tactile-sfx-pack: done
+  epic-2-retrospective: skipped
 
-  epic-3: backlog
-  3-1-seeded-prng-utility: backlog
-  3-2-visibility-auto-pause: backlog
+  epic-3: in-progress
+  3-1-seeded-prng-utility: done
+  3-2-visibility-auto-pause: ready-for-dev
   3-3-localstorage-sync-zod: backlog
   3-4-session-hot-resume: backlog
   epic-3-retrospective: optional
