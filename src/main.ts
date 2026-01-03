@@ -43,6 +43,11 @@ ui.bindSimControls({
   }
 });
 
+ui.bindRestartAction(() => {
+  persistence.clear('gamestate');
+  window.location.reload();
+});
+
 // Load Theme
 const savedTheme = persistence.load('theme', z.string());
 if (savedTheme) {
@@ -140,6 +145,7 @@ engine.on('line-clear', (payload: any) => {
 engine.on('game-over', () => {
   audio.playSFX('game-over');
   ui.showGameOver(engine.score);
+  persistence.clear('gamestate'); // Prevent reloading into dead state
 });
 
 const update = (deltaTime: number) => {
