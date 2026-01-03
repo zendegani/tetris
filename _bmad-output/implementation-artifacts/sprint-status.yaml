@@ -50,8 +50,8 @@ development_status:
 
   epic-2: in-progress
   2-1-neon-canvas-init: done
-  2-2-piece-glow-rendering: ready-for-dev
-  2-3-grid-milestone-pulse: backlog
+  2-2-piece-glow-rendering: done
+  2-3-grid-milestone-pulse: ready-for-dev
   2-4-elastic-collision-fx: backlog
   2-5-industrial-audio-core: backlog
   2-6-tactile-sfx-pack: backlog

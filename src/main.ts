@@ -21,17 +21,39 @@ const update = (_deltaTime: number) => {
 };
 
 const render = (_interpolation: number) => {
-  renderer.clear();
-  // TODO: Draw grid and pieces (Story 2.2)
+  renderer.render(engine);
 
-  // Debug text
+  // Debug text overlay
   const ctx = renderer.getContext();
+  ctx.shadowBlur = 0;
   ctx.fillStyle = '#00faff';
-  ctx.font = '20px "Courier New"';
-  ctx.fillText(`Score: ${engine.score}`, 20, 40);
-  ctx.fillText(`Level: ${engine.level}`, 20, 70);
-  ctx.fillText(`Lines: ${engine.linesCleared}`, 20, 100);
+  ctx.font = '16px "Courier New"';
+  ctx.fillText(`Score: ${engine.score}`, 20, 30);
+  ctx.fillText(`Level: ${engine.level}`, 20, 50);
+  ctx.fillText(`Lines: ${engine.linesCleared}`, 20, 70);
 };
+
+// Input Handling
+window.addEventListener('keydown', (e) => {
+  if (engine.state !== 'playing') return;
+
+  switch (e.code) {
+    case 'ArrowLeft':
+      engine.moveLeft();
+      break;
+    case 'ArrowRight':
+      engine.moveRight();
+      break;
+    case 'ArrowDown':
+      engine.softDrop();
+      // Reset gravity accumulator to prevent double-drop feel
+      gravityAccumulator = 0;
+      break;
+    case 'ArrowUp':
+      engine.rotate();
+      break;
+  }
+});
 
 // Gravity Logic (Simple version for V1)
 let gravityAccumulator = 0;

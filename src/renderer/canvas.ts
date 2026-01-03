@@ -1,12 +1,13 @@
+import { TetrisEngine } from '../logic/engine';
+import { Piece } from '../logic/piece';
+import { CELL_SIZE, GRID_HEIGHT, GRID_WIDTH, NEON_PALETTE, GHOST_ALPHA, GLOW_BLUR } from './constants';
+
 export class CanvasRenderer {
     private canvas: HTMLCanvasElement;
     private ctx: CanvasRenderingContext2D;
     private container: HTMLElement;
-
-    // Base resolution for the game grid (logical pixels)
-    // We can scale this up via CSS, but internally we draw to this or a multiple of it.
-    // Actually, for crisp rendering, we usually want internal match with physical pixels.
-    // But for now, let's just handle the resizing and clearing.
+    private offsetX: number = 0;
+    private offsetY: number = 0;
 
     constructor(containerId: string) {
         const container = document.getElementById(containerId);
@@ -36,33 +37,111 @@ export class CanvasRenderer {
         const { clientWidth, clientHeight } = this.container;
         const dpr = window.devicePixelRatio || 1;
 
-        // Set actual size in memory (scaled to account for extra pixel density)
         this.canvas.width = clientWidth * dpr;
         this.canvas.height = clientHeight * dpr;
 
-        // Normalize coordinate system to use css pixels
         this.ctx.scale(dpr, dpr);
 
-        // Set visible size
         this.canvas.style.width = `${clientWidth}px`;
         this.canvas.style.height = `${clientHeight}px`;
 
-        // Disable smoothing for pixel art look (optional, but fits Tetris Vibe)
-        this.ctx.imageSmoothingEnabled = false;
+        // Calculate centering offsets
+        this.offsetX = Math.floor((clientWidth - GRID_WIDTH * CELL_SIZE) / 2);
+        this.offsetY = Math.floor((clientHeight - GRID_HEIGHT * CELL_SIZE) / 2);
     }
 
     public clear(): void {
-        // Clear with the dark background color
         this.ctx.fillStyle = '#050505';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
-    public getContext(): CanvasRenderingContext2D {
-        return this.ctx;
+    public render(engine: TetrisEngine): void {
+        this.clear();
+        this.drawGridBoundaries();
+        this.drawLockedBlocks(engine);
+        this.drawGhostPiece(engine);
+        this.drawCurrentPiece(engine);
     }
 
-    public destroy(): void {
-        window.removeEventListener('resize', this.resize);
-        this.canvas.remove();
+    private drawGridBoundaries(): void {
+        this.ctx.strokeStyle = '#1a1a1a';
+        this.ctx.lineWidth = 2;
+        this.ctx.strokeRect(
+            this.offsetX - 2,
+            this.offsetY - 2,
+            GRID_WIDTH * CELL_SIZE + 4,
+            GRID_HEIGHT * CELL_SIZE + 4
+        );
+    }
+
+    private drawLockedBlocks(engine: TetrisEngine): void {
+        const gridData = engine.grid.getRawGrid();
+        for (let y = 0; y < GRID_HEIGHT; y++) {
+            for (let x = 0; x < GRID_WIDTH; x++) {
+                const cellValue = gridData[y][x];
+                if (cellValue > 0) {
+                    const color = NEON_PALETTE[cellValue as keyof typeof NEON_PALETTE];
+                    this.drawBlock(x, y, color);
+                }
+            }
+        }
+    }
+
+    private drawCurrentPiece(engine: TetrisEngine): void {
+        if (!engine.currentPiece) return;
+
+        const color = NEON_PALETTE[engine.currentPiece.type];
+        const blocks = engine.currentPiece.getBlocks();
+
+        blocks.forEach(block => {
+            // Only draw if visible (y >= 0)
+            if (block.y >= 0) {
+                this.drawBlock(block.x, block.y, color, true);
+            }
+        });
+    }
+
+    private drawGhostPiece(engine: TetrisEngine): void {
+        if (!engine.currentPiece) return;
+
+        const ghostY = engine.getGhostY();
+        const blocks = engine.currentPiece.getBlocks();
+        const color = NEON_PALETTE[engine.currentPiece.type];
+
+        // Calculate delta Y to shift blocks
+        const deltaY = ghostY - engine.currentPiece.y;
+
+        this.ctx.globalAlpha = GHOST_ALPHA;
+        blocks.forEach(block => {
+            const y = block.y + deltaY;
+            if (y >= 0) {
+                this.drawBlock(block.x, y, color, false);
+            }
+        });
+        this.ctx.globalAlpha = 1.0;
+    }
+
+    private drawBlock(x: number, y: number, color: string, glow: boolean = false): void {
+        const px = this.offsetX + x * CELL_SIZE;
+        const py = this.offsetY + y * CELL_SIZE;
+
+        if (glow) {
+            this.ctx.shadowBlur = GLOW_BLUR;
+            this.ctx.shadowColor = color;
+        } else {
+            this.ctx.shadowBlur = 0;
+        }
+
+        this.ctx.fillStyle = color;
+        this.ctx.fillRect(px + 1, py + 1, CELL_SIZE - 2, CELL_SIZE - 2);
+
+        // Add a light inner border/reflection for that "glassy" look
+        this.ctx.shadowBlur = 0; // Reset for inner rect
+        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+        this.ctx.fillRect(px + 1, py + 1, CELL_SIZE - 2, 4); // Top highlight
+    }
+
+    public getContext(): CanvasRenderingContext2D {
+        return this.ctx;
     }
 }

@@ -139,4 +139,17 @@ export class TetrisEngine {
         }
         return false;
     }
+
+    public getGhostY(): number {
+        if (!this.currentPiece) return -1;
+
+        // Clone the piece to simulate drop
+        const ghost = new Piece(this.currentPiece.type, this.currentPiece.x, this.currentPiece.y);
+        ghost.setRotation(this.currentPiece.getRotation());
+
+        while (canMove(this.grid, ghost, 0, 1)) {
+            ghost.y += 1;
+        }
+        return ghost.y;
+    }
 }
