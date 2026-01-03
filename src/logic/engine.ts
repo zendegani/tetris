@@ -252,6 +252,21 @@ export class TetrisEngine extends EventEmitter {
         return false;
     }
 
+    public hardDrop(): boolean {
+        if (this.state !== 'playing' || !this.currentPiece) return false;
+
+        const ghostY = this.getGhostY();
+        const distance = ghostY - this.currentPiece.y;
+
+        if (distance >= 0) {
+            this.currentPiece.y = ghostY;
+            this.score += distance * 2;
+            this.lockPiece();
+            return true;
+        }
+        return false;
+    }
+
     public rotate(): boolean {
         if (this.state === 'playing' && this.currentPiece && canRotate(this.grid, this.currentPiece)) {
             this.currentPiece.rotate();
